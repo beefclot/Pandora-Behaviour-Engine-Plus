@@ -54,6 +54,20 @@ public class AnimSet : IAnimSet
 
 	public void AddAnimInfo(ISetCachedAnimInfo animInfo) => AnimInfos.Add(animInfo);
 
+	public void ReplaceContents(
+		IList<string> triggers,
+		IList<ISetCondition> conditions,
+		IList<ISetAttackEntry> attackEntries,
+		IList<ISetCachedAnimInfo> animInfos
+	)
+	{
+		Triggers = triggers;
+		Conditions = conditions;
+		AttackEntries = attackEntries;
+		AnimInfos = animInfos;
+		SyncCounts();
+	}
+
 	public static bool TryRead(StreamReader reader, [NotNullWhen(true)] out IAnimSet? animSet)
 	{
 		animSet = null;

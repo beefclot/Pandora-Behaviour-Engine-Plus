@@ -15,6 +15,7 @@ namespace Pandora.Skyrim.AnimData
 	{
 		public string ClipID { get; set; } = string.Empty;
 		public float Duration { get; private set; } = 1.33f;
+		public string? DurationText { get; set; }
 		public int NumTranslations { get; private set; } = 1;
 		public IList<string> Translations { get; private set; } = ["1.33 0 0 0"];
 		public int NumRotations { get; private set; } = 1;
@@ -25,6 +26,33 @@ namespace Pandora.Skyrim.AnimData
 		public ClipMotionDataBlock(string id)
 		{
 			ClipID = id;
+		}
+
+		public ClipMotionDataBlock(
+			string id,
+			string durationText,
+			IList<string> translations,
+			IList<string> rotations
+		)
+		{
+			ClipID = id;
+			DurationText = durationText;
+			if (
+				!float.TryParse(
+					durationText,
+					System.Globalization.NumberStyles.Float,
+					System.Globalization.CultureInfo.InvariantCulture,
+					out var duration
+				)
+			)
+			{
+				duration = 0;
+			}
+			Duration = duration;
+			Translations = translations;
+			Rotations = rotations;
+			NumTranslations = translations.Count;
+			NumRotations = rotations.Count;
 		}
 
 		public static bool TryReadBlock(
@@ -110,11 +138,17 @@ namespace Pandora.Skyrim.AnimData
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(ClipID)
-				.AppendLine(Duration.ToString())
-				.AppendLine(Translations.Count.ToString())
-				.AppendLine(string.Join("\r\n", Translations))
-				.AppendLine(Rotations.Count.ToString())
-				.AppendLine(string.Join("\r\n", Rotations));
+				.AppendLine(DurationText ?? Duration.ToString())
+				.AppendLine(Translations.Count.ToString());
+			if (Translations.Count > 0)
+			{
+				sb.AppendLine(string.Join("\r\n", Translations));
+			}
+			sb.AppendLine(Rotations.Count.ToString());
+			if (Rotations.Count > 0)
+			{
+				sb.AppendLine(string.Join("\r\n", Rotations));
+			}
 			return sb.ToString();
 		}
 

@@ -177,6 +177,76 @@ public class AnimDataManager : IAnimDataManager
 		}
 	}
 
+	internal int IndexOfProject(string projectName)
+	{
+		for (int i = 0; i < _projectNames.Count; i++)
+		{
+			if (string.Equals(_projectNames[i], projectName, StringComparison.OrdinalIgnoreCase))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	internal ProjectAnimData? AnimDataAt(int index) =>
+		index >= 0 && index < AnimDataList.Count ? AnimDataList[index] : null;
+
+	internal void AddProject(string projectName, ProjectAnimData animData)
+	{
+		_projectNames.Add(projectName);
+		AnimDataList.Add(animData);
+		if (animData.BoundMotionDataProject != null)
+		{
+			MotionDataList.Add(animData.BoundMotionDataProject);
+		}
+	}
+
+	internal void ReorderProjects(IReadOnlyList<string> projectFileNames)
+	{
+		var pending = new Dictionary<string, Queue<ProjectAnimData>>(
+			StringComparer.OrdinalIgnoreCase
+		);
+		for (int i = 0; i < _projectNames.Count; i++)
+		{
+			if (!pending.TryGetValue(_projectNames[i], out var queue))
+			{
+				queue = new Queue<ProjectAnimData>();
+				pending[_projectNames[i]] = queue;
+			}
+			queue.Enqueue(AnimDataList[i]);
+		}
+
+		var names = new List<string>(projectFileNames.Count);
+		var projects = new List<ProjectAnimData>(projectFileNames.Count);
+		foreach (string fileName in projectFileNames)
+		{
+			string stem = Path.GetFileNameWithoutExtension(fileName);
+			if (!pending.TryGetValue(stem, out var queue) || queue.Count == 0)
+			{
+				throw new InvalidDataException(
+					$"Animation data project list names {stem}, which is not loaded."
+				);
+			}
+			ProjectAnimData project = queue.Dequeue();
+			string casing = stem;
+			foreach (string existing in _projectNames)
+			{
+				if (string.Equals(existing, stem, StringComparison.OrdinalIgnoreCase))
+				{
+					casing = existing;
+					break;
+				}
+			}
+			names.Add(casing);
+			projects.Add(project);
+		}
+
+		_projectNames.Clear();
+		_projectNames.AddRange(names);
+		AnimDataList = projects;
+	}
+
 	public void MergeAnimDataSingleFile()
 	{
 		try

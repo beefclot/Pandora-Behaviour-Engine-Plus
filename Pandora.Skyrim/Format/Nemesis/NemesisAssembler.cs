@@ -7,7 +7,9 @@ using Pandora.API.Patch.IOManagers;
 using Pandora.API.Patch.Skyrim64;
 using Pandora.API.Patch.Skyrim64.AnimData;
 using Pandora.API.Patch.Skyrim64.AnimSetData;
+using Pandora.Models.Patch.Skyrim64.Format.Nemesis;
 using Pandora.Skyrim.AnimData;
+using Pandora.Skyrim.AnimSetData;
 using Pandora.Skyrim.Format.Pandora;
 using Pandora.Skyrim.Hkx.Packfile;
 using Pandora.Core.Paths.Abstractions;
@@ -29,6 +31,7 @@ public class NemesisAssembler : IPatchAssembler
 	private readonly IEnginePathsFacade _pathContext;
 
 	private readonly PandoraBridgedAssembler _pandoraConverter;
+	private readonly NemesisCachePatcher _cachePatcher = new();
 	private readonly IMetaDataExporter<IPackFile> _exporter;
 
 	private static readonly IXExpression ReplacePattern = new XSkipWrapExpression(
@@ -103,18 +106,21 @@ public class NemesisAssembler : IPatchAssembler
 		{
 			if (AssemblePackFilePatch(subFolder, modInfo))
 				continue;
-			if (subFolder.Name.StartsWith("animationsetdata"))
-			{
-				AssembleAnimSetDataPatch(subFolder);
+			if (subFolder.Name.StartsWith("animationsetdata", StringComparison.OrdinalIgnoreCase))
 				continue;
-			}
-			if (subFolder.Name.StartsWith("animationdata"))
-			{
-				AssembleAnimDataPatch(subFolder);
+			if (subFolder.Name.StartsWith("animationdata", StringComparison.OrdinalIgnoreCase))
 				continue;
-			}
 			if (subFolder.Name.StartsWith("plugin")) { }
 		}
+	}
+
+	public void ApplyCachePatches(IModInfo modInfo)
+	{
+		if (AnimDataManager is not AnimDataManager animData || AnimSetDataManager is not AnimSetDataManager animSets)
+		{
+			return;
+		}
+		_cachePatcher.Apply(modInfo, animData, animSets, ProjectManager);
 	}
 
 	public void AssemblePatch(IModInfo modInfo, DirectoryInfo folder)
@@ -124,10 +130,10 @@ public class NemesisAssembler : IPatchAssembler
 		{
 			if (AssemblePackFilePatch(subFolder, modInfo))
 				continue;
-			if (subFolder.Name.StartsWith("animationsetdata"))
-				AssembleAnimSetDataPatch(subFolder);
-			if (subFolder.Name.StartsWith("animationdata"))
-				AssembleAnimDataPatch(subFolder);
+			if (subFolder.Name.StartsWith("animationsetdata", StringComparison.OrdinalIgnoreCase))
+				continue;
+			if (subFolder.Name.StartsWith("animationdata", StringComparison.OrdinalIgnoreCase))
+				continue;
 		}
 	}
 
