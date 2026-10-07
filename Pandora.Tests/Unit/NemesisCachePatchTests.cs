@@ -42,18 +42,8 @@ public class NemesisCachePatchTests : IDisposable
 		var sets = new AnimSetDataManager(Paths(Path.GetDirectoryName(template)!));
 		sets.SplitAnimSetDataSingleFile(projects);
 
-		string first = ModFolder(
-			"aaaaaa",
-			"DefaultMale",
-			["AlphaClip"],
-			["1", "0", "0", "0"]
-		);
-		string second = ModFolder(
-			"bbbbbb",
-			"DefaultMale",
-			["BetaClip"],
-			["1", "0", "0", "0"]
-		);
+		string first = ModFolder("aaaaaa", "DefaultMale", ["AlphaClip"], ["1", "0", "0", "0"]);
+		string second = ModFolder("bbbbbb", "DefaultMale", ["BetaClip"], ["1", "0", "0", "0"]);
 
 		var patcher = new NemesisCachePatcher();
 		patcher.Apply(Mod("aaaaaa", 0, first), anim, sets, projects);
@@ -113,7 +103,11 @@ public class NemesisCachePatchTests : IDisposable
 		IProjectAnimSetData horse = sets.AnimSetDataMap["HorseProject"];
 		int before = horse.AnimSetsByName["FullCharacter.txt"].AnimInfos.Count;
 		string root = Path.Combine(_output.FullName, "hpmhr");
-		string folder = Path.Combine(root, "animationsetdatasinglefile", "HorseProjectData~HorseProject");
+		string folder = Path.Combine(
+			root,
+			"animationsetdatasinglefile",
+			"HorseProjectData~HorseProject"
+		);
 		Directory.CreateDirectory(folder);
 		File.WriteAllLines(
 			Path.Combine(folder, "horseproject.txt"),
@@ -202,7 +196,9 @@ public class NemesisCachePatchTests : IDisposable
 
 	private AnimDataManager LoadAnimData(string templatePath, string? outputFolder = null)
 	{
-		var manager = new AnimDataManager(Paths(Path.GetDirectoryName(templatePath)!, outputFolder));
+		var manager = new AnimDataManager(
+			Paths(Path.GetDirectoryName(templatePath)!, outputFolder)
+		);
 		var projects = Substitute.For<IProjectManager>();
 		projects.ProjectLoaded(Arg.Any<string>()).Returns(false);
 		manager.SplitAnimDataSingleFile(projects);
@@ -232,15 +228,7 @@ public class NemesisCachePatchTests : IDisposable
 			string code = $"{modcode}${i}";
 			File.WriteAllLines(
 				Path.Combine(folder, $"{clipNames[i]}~{code}.txt"),
-				[
-					clipNames[i],
-					code,
-					fixedFields[0],
-					fixedFields[1],
-					fixedFields[2],
-					"0",
-					"",
-				]
+				[clipNames[i], code, fixedFields[0], fixedFields[1], fixedFields[2], "0", ""]
 			);
 			File.WriteAllLines(
 				Path.Combine(folder, $"{code}.txt"),

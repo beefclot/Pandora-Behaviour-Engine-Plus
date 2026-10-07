@@ -89,14 +89,7 @@ public sealed class NemesisCachePatcher
 
 			ProjectAnimData project = animData.AnimDataAt(index)!;
 			handled.Add(projectName);
-			ApplyExistingProject(
-				folder,
-				projectName,
-				project,
-				modcode,
-				projects,
-				insertedNames
-			);
+			ApplyExistingProject(folder, projectName, project, modcode, projects, insertedNames);
 		}
 
 		if (projectList != null)
@@ -140,13 +133,20 @@ public sealed class NemesisCachePatcher
 
 		if (names.Count > 0)
 		{
-			AppendCharacterNames(projects, projectName, names, out Dictionary<string, int> pathIndex);
+			AppendCharacterNames(
+				projects,
+				projectName,
+				names,
+				out Dictionary<string, int> pathIndex
+			);
 			AssignBindingIndexes(projects, projectName, pathIndex);
 		}
 
 		FileInfo? header = files
 			.Select(file => file.Info)
-			.FirstOrDefault(info => info.Name.Equals("$header$.txt", StringComparison.OrdinalIgnoreCase));
+			.FirstOrDefault(info =>
+				info.Name.Equals("$header$.txt", StringComparison.OrdinalIgnoreCase)
+			);
 		if (header != null)
 		{
 			ApplyProjectHeader(project, File.ReadAllLines(header.FullName));
@@ -175,8 +175,7 @@ public sealed class NemesisCachePatcher
 		}
 
 		clips.Sort(
-			(left, right) =>
-				TokenOrder(left, modcode).CompareTo(TokenOrder(right, modcode))
+			(left, right) => TokenOrder(left, modcode).CompareTo(TokenOrder(right, modcode))
 		);
 
 		foreach (PatchFile clip in clips)
@@ -218,10 +217,15 @@ public sealed class NemesisCachePatcher
 		body[1] = resolved;
 		ClipDataBlock block = ClipFromLines(body);
 		string originalId = fileCode.Length == 0 ? resolved : Resolve(fileCode, modcode, baseIndex);
-		if (!project.TryReplaceClip(block.Name, originalId, block) && !project.TryReplaceClip(block.Name, fileCode, block))
+		if (
+			!project.TryReplaceClip(block.Name, originalId, block)
+			&& !project.TryReplaceClip(block.Name, fileCode, block)
+		)
 		{
 			ClipMotionDataBlock? motion = null;
-			if (motions.Remove(fileCode.Length == 0 ? body[1] : fileCode, out PatchFile? motionFile))
+			if (
+				motions.Remove(fileCode.Length == 0 ? body[1] : fileCode, out PatchFile? motionFile)
+			)
 			{
 				motion = MotionFromFile(motionFile, resolved, modcode, baseIndex);
 			}
@@ -231,7 +235,10 @@ public sealed class NemesisCachePatcher
 			}
 			project.AddResolvedClip(block, motion);
 		}
-		else if (motions.Remove(fileCode, out PatchFile? editedMotion) || motions.Remove(resolved, out editedMotion))
+		else if (
+			motions.Remove(fileCode, out PatchFile? editedMotion)
+			|| motions.Remove(resolved, out editedMotion)
+		)
 		{
 			ClipMotionDataBlock motion = MotionFromFile(editedMotion, resolved, modcode, baseIndex);
 			if (project.BoundMotionDataProject is MotionData data)
@@ -264,7 +271,10 @@ public sealed class NemesisCachePatcher
 			project.BoundMotionDataProject = data;
 			project.Header.HasMotionData = 1;
 		}
-		if (!data.ReplaceMotion(Resolve(code, modcode, baseIndex), block) && !data.ReplaceMotion(code, block))
+		if (
+			!data.ReplaceMotion(Resolve(code, modcode, baseIndex), block)
+			&& !data.ReplaceMotion(code, block)
+		)
 		{
 			data.AddClipMotionData(block);
 		}
@@ -275,7 +285,11 @@ public sealed class NemesisCachePatcher
 		FileInfo headerFile = new(Path.Combine(folder.FullName, "$header$.txt"));
 		string[] headerLines = File.ReadAllLines(headerFile.FullName);
 		int cursor = 0;
-		if (headerLines.Length > 0 && int.TryParse(headerLines[0], out int declared) && declared > 1)
+		if (
+			headerLines.Length > 0
+			&& int.TryParse(headerLines[0], out int declared)
+			&& declared > 1
+		)
 		{
 			cursor = 1;
 		}
@@ -348,9 +362,11 @@ public sealed class NemesisCachePatcher
 				ordered.Add(file);
 			}
 		}
-		ordered.AddRange(byName.Values.Where(file =>
-			!file.Info.Name.Equals("$header$.txt", StringComparison.OrdinalIgnoreCase)
-		));
+		ordered.AddRange(
+			byName.Values.Where(file =>
+				!file.Info.Name.Equals("$header$.txt", StringComparison.OrdinalIgnoreCase)
+			)
+		);
 		return ordered;
 	}
 
@@ -374,7 +390,10 @@ public sealed class NemesisCachePatcher
 					string folderName = SetFolderName(projectPath);
 					folders.TryGetValue(folderName, out DirectoryInfo? folder);
 					string mapKey = Path.GetFileNameWithoutExtension(projectPath);
-					if (TryGetSetProject(manager, mapKey, out ProjectAnimSetData? existing) && existing != null)
+					if (
+						TryGetSetProject(manager, mapKey, out ProjectAnimSetData? existing)
+						&& existing != null
+					)
 					{
 						if (folder != null)
 						{
@@ -406,7 +425,11 @@ public sealed class NemesisCachePatcher
 				continue;
 			}
 			if (
-				TryGetSetProject(manager, SetProjectKey(folder.Name), out ProjectAnimSetData? project)
+				TryGetSetProject(
+					manager,
+					SetProjectKey(folder.Name),
+					out ProjectAnimSetData? project
+				)
 				&& project != null
 			)
 			{
@@ -495,7 +518,9 @@ public sealed class NemesisCachePatcher
 		{
 			FileInfo? setFile =
 				ResolveSetFile(folder, name, modcode)
-				?? throw new InvalidDataException($"New animation set {name} is missing from {folder.Name}.");
+				?? throw new InvalidDataException(
+					$"New animation set {name} is missing from {folder.Name}."
+				);
 			AnimSet set = ReadPlainSet(File.ReadAllLines(setFile.FullName));
 			sets.Add(set);
 			map[name] = set;
@@ -535,15 +560,25 @@ public sealed class NemesisCachePatcher
 		return stem.Replace('\\', '~').Replace('/', '~');
 	}
 
-	private static void AddOrReplaceSet(ProjectAnimSetData project, string listedName, string[] lines)
+	private static void AddOrReplaceSet(
+		ProjectAnimSetData project,
+		string listedName,
+		string[] lines
+	)
 	{
-		AnimSet parsed = lines.Any(IsOpenLine) || lines.Any(IsCloseLine) ? ReadSet(lines) : ReadPlainSet(lines);
+		AnimSet parsed =
+			lines.Any(IsOpenLine) || lines.Any(IsCloseLine) ? ReadSet(lines) : ReadPlainSet(lines);
 		if (
 			project.AnimSetsByName.TryGetValue(listedName, out IAnimSet? existing)
 			&& existing is AnimSet set
 		)
 		{
-			set.ReplaceContents(parsed.Triggers, parsed.Conditions, parsed.AttackEntries, parsed.AnimInfos);
+			set.ReplaceContents(
+				parsed.Triggers,
+				parsed.Conditions,
+				parsed.AttackEntries,
+				parsed.AnimInfos
+			);
 			return;
 		}
 		project.AddSet(Path.GetFileName(listedName), parsed);
@@ -682,13 +717,21 @@ public sealed class NemesisCachePatcher
 			}
 			foreach (XElement element in pack.XmlDeserializer.Context.ElementNameMap.Values)
 			{
-				if (!string.Equals((string?)element.Attribute("class"), "hkbClipGenerator", StringComparison.Ordinal))
+				if (
+					!string.Equals(
+						(string?)element.Attribute("class"),
+						"hkbClipGenerator",
+						StringComparison.Ordinal
+					)
+				)
 				{
 					continue;
 				}
 				XElement? binding = element
 					.Elements("hkparam")
-					.FirstOrDefault(param => (string?)param.Attribute("name") == "animationBindingIndex");
+					.FirstOrDefault(param =>
+						(string?)param.Attribute("name") == "animationBindingIndex"
+					);
 				XElement? animation = element
 					.Elements("hkparam")
 					.FirstOrDefault(param => (string?)param.Attribute("name") == "animationName");
@@ -826,7 +869,9 @@ public sealed class NemesisCachePatcher
 		}
 		int hasFileList = int.Parse(cursor.Take(), CultureInfo.InvariantCulture);
 		List<string> assets = ReadCounted(cursor);
-		int hasCache = cursor.End ? project.Header.HasMotionData : int.Parse(cursor.Take(), CultureInfo.InvariantCulture);
+		int hasCache = cursor.End
+			? project.Header.HasMotionData
+			: int.Parse(cursor.Take(), CultureInfo.InvariantCulture);
 		if (project.Header is ProjectAnimDataHeader header)
 		{
 			header.LeadInt = hasFileList;
@@ -908,7 +953,12 @@ public sealed class NemesisCachePatcher
 		{
 			return false;
 		}
-		return int.TryParse(text.AsSpan(prefix.Length), NumberStyles.Integer, CultureInfo.InvariantCulture, out n);
+		return int.TryParse(
+			text.AsSpan(prefix.Length),
+			NumberStyles.Integer,
+			CultureInfo.InvariantCulture,
+			out n
+		);
 	}
 
 	private static ClipDataBlock ClipFromLines(IReadOnlyList<string> lines)
@@ -1070,18 +1120,21 @@ public sealed class NemesisCachePatcher
 		List<ISetCondition> conditions = ReadGrouped<ISetCondition>(
 			cursor,
 			3,
-			group => new SetCondition(group[0], int.Parse(group[1], CultureInfo.InvariantCulture), int.Parse(group[2], CultureInfo.InvariantCulture))
+			group => new SetCondition(
+				group[0],
+				int.Parse(group[1], CultureInfo.InvariantCulture),
+				int.Parse(group[2], CultureInfo.InvariantCulture)
+			)
 		);
 		List<ISetAttackEntry> attacks = ReadAttacks(cursor);
 		List<ISetCachedAnimInfo> infos = ReadGrouped<ISetCachedAnimInfo>(
 			cursor,
 			3,
-			group =>
-				new SetCachedAnimInfo(
-					uint.Parse(group[0], CultureInfo.InvariantCulture),
-					uint.Parse(group[1], CultureInfo.InvariantCulture),
-					uint.Parse(group[2], CultureInfo.InvariantCulture)
-				)
+			group => new SetCachedAnimInfo(
+				uint.Parse(group[0], CultureInfo.InvariantCulture),
+				uint.Parse(group[1], CultureInfo.InvariantCulture),
+				uint.Parse(group[2], CultureInfo.InvariantCulture)
+			)
 		);
 		return new AnimSet(
 			version,
@@ -1096,7 +1149,11 @@ public sealed class NemesisCachePatcher
 		);
 	}
 
-	private static List<T> ReadGrouped<T>(LineCursor cursor, int width, Func<IReadOnlyList<string>, T> parse)
+	private static List<T> ReadGrouped<T>(
+		LineCursor cursor,
+		int width,
+		Func<IReadOnlyList<string>, T> parse
+	)
 	{
 		int count = int.Parse(cursor.Take(), CultureInfo.InvariantCulture);
 		var items = new List<T>();
@@ -1237,10 +1294,30 @@ public sealed class NemesisCachePatcher
 				{
 					return Info.Name.Contains('~', StringComparison.Ordinal);
 				}
-				return int.TryParse(Lines[5], NumberStyles.Integer, CultureInfo.InvariantCulture, out _)
-					&& float.TryParse(Lines[2], NumberStyles.Float, CultureInfo.InvariantCulture, out _)
-					&& float.TryParse(Lines[3], NumberStyles.Float, CultureInfo.InvariantCulture, out _)
-					&& float.TryParse(Lines[4], NumberStyles.Float, CultureInfo.InvariantCulture, out _)
+				return int.TryParse(
+						Lines[5],
+						NumberStyles.Integer,
+						CultureInfo.InvariantCulture,
+						out _
+					)
+					&& float.TryParse(
+						Lines[2],
+						NumberStyles.Float,
+						CultureInfo.InvariantCulture,
+						out _
+					)
+					&& float.TryParse(
+						Lines[3],
+						NumberStyles.Float,
+						CultureInfo.InvariantCulture,
+						out _
+					)
+					&& float.TryParse(
+						Lines[4],
+						NumberStyles.Float,
+						CultureInfo.InvariantCulture,
+						out _
+					)
 					&& !Lines[5].Contains(' ');
 			}
 		}

@@ -1,18 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2023-2026 Pandora Behaviour Engine Contributors
 
-using NLog;
-using Pandora.API.Patch;
-using Pandora.API.Patch.IOManagers;
-using Pandora.API.Patch.Skyrim64;
-using Pandora.API.Patch.Skyrim64.AnimData;
-using Pandora.API.Patch.Skyrim64.AnimSetData;
-using Pandora.Models.Patch.Skyrim64.Format.Nemesis;
-using Pandora.Skyrim.AnimData;
-using Pandora.Skyrim.AnimSetData;
-using Pandora.Skyrim.Format.Pandora;
-using Pandora.Skyrim.Hkx.Packfile;
-using Pandora.Core.Paths.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +8,18 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using NLog;
+using Pandora.API.Patch;
+using Pandora.API.Patch.IOManagers;
+using Pandora.API.Patch.Skyrim64;
+using Pandora.API.Patch.Skyrim64.AnimData;
+using Pandora.API.Patch.Skyrim64.AnimSetData;
+using Pandora.Core.Paths.Abstractions;
+using Pandora.Models.Patch.Skyrim64.Format.Nemesis;
+using Pandora.Skyrim.AnimData;
+using Pandora.Skyrim.AnimSetData;
+using Pandora.Skyrim.Format.Pandora;
+using Pandora.Skyrim.Hkx.Packfile;
 using XmlCake.Linq.Expressions;
 
 namespace Pandora.Skyrim.Format.Nemesis;
@@ -116,7 +116,10 @@ public class NemesisAssembler : IPatchAssembler
 
 	public void ApplyCachePatches(IModInfo modInfo)
 	{
-		if (AnimDataManager is not AnimDataManager animData || AnimSetDataManager is not AnimSetDataManager animSets)
+		if (
+			AnimDataManager is not AnimDataManager animData
+			|| AnimSetDataManager is not AnimSetDataManager animSets
+		)
 		{
 			return;
 		}

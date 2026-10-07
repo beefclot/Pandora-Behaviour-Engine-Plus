@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // Copyright (C) 2023-2026 Pandora Behaviour Engine Contributors
 
+using System;
+using System.Collections.Generic;
+using System.IO;
 using NLog;
 using Pandora.API.Patch.Skyrim64;
 using Pandora.API.Patch.Skyrim64.AnimSetData;
 using Pandora.Core.Extensions;
 using Pandora.Core.Paths.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace Pandora.Skyrim.AnimSetData;
 
@@ -127,7 +127,9 @@ public class AnimSetDataManager : IAnimSetDataManager
 
 	internal void ReorderProjects(IReadOnlyList<string> projectPaths)
 	{
-		var pending = new Dictionary<string, Queue<IProjectAnimSetData>>(StringComparer.OrdinalIgnoreCase);
+		var pending = new Dictionary<string, Queue<IProjectAnimSetData>>(
+			StringComparer.OrdinalIgnoreCase
+		);
 		for (int i = 0; i < _projectPaths.Count; i++)
 		{
 			string key = Path.GetFileNameWithoutExtension(_projectPaths[i]);
@@ -145,9 +147,14 @@ public class AnimSetDataManager : IAnimSetDataManager
 		foreach (string projectPath in projectPaths)
 		{
 			string key = Path.GetFileNameWithoutExtension(projectPath);
-			if (!pending.TryGetValue(key, out Queue<IProjectAnimSetData>? queue) || queue.Count == 0)
+			if (
+				!pending.TryGetValue(key, out Queue<IProjectAnimSetData>? queue)
+				|| queue.Count == 0
+			)
 			{
-				throw new InvalidDataException($"Animation set project list names {key}, which is not loaded.");
+				throw new InvalidDataException(
+					$"Animation set project list names {key}, which is not loaded."
+				);
 			}
 			IProjectAnimSetData project = queue.Dequeue();
 			_projectPaths.Add(projectPath);
