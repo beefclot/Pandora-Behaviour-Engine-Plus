@@ -15,7 +15,6 @@ namespace Pandora.Skyrim.AnimData
 	{
 		public string ClipID { get; set; } = string.Empty;
 		public float Duration { get; private set; } = 1.33f;
-		public string? DurationText { get; set; }
 		public int NumTranslations { get; private set; } = 1;
 		public IList<string> Translations { get; private set; } = ["1.33 0 0 0"];
 		public int NumRotations { get; private set; } = 1;
@@ -30,24 +29,12 @@ namespace Pandora.Skyrim.AnimData
 
 		public ClipMotionDataBlock(
 			string id,
-			string durationText,
+			float duration,
 			IList<string> translations,
 			IList<string> rotations
 		)
 		{
 			ClipID = id;
-			DurationText = durationText;
-			if (
-				!float.TryParse(
-					durationText,
-					System.Globalization.NumberStyles.Float,
-					System.Globalization.CultureInfo.InvariantCulture,
-					out var duration
-				)
-			)
-			{
-				duration = 0;
-			}
 			Duration = duration;
 			Translations = translations;
 			Rotations = rotations;
@@ -138,7 +125,7 @@ namespace Pandora.Skyrim.AnimData
 		{
 			StringBuilder sb = new StringBuilder();
 			sb.AppendLine(ClipID)
-				.AppendLine(DurationText ?? Duration.ToString())
+				.AppendLine(Duration.ToString())
 				.AppendLine(Translations.Count.ToString());
 			if (Translations.Count > 0)
 			{

@@ -233,7 +233,7 @@ public sealed class NemesisCachePatcher
 			{
 				motion = MotionFromFile(motionFile, resolved, modcode, baseIndex);
 			}
-			project.AddResolvedClip(block, motion);
+			project.AddClipData(block, motion);
 		}
 		else if (
 			motions.Remove(fileCode, out PatchFile? editedMotion)
@@ -969,7 +969,7 @@ public sealed class NemesisCachePatcher
 		{
 			triggers.Add(lines[6 + i]);
 		}
-		var block = new ClipDataBlock(
+		return new ClipDataBlock(
 			lines[0],
 			lines[1],
 			float.Parse(lines[2], CultureInfo.InvariantCulture),
@@ -977,13 +977,7 @@ public sealed class NemesisCachePatcher
 			float.Parse(lines[4], CultureInfo.InvariantCulture),
 			events,
 			triggers
-		)
-		{
-			PlaybackSpeedText = lines[2],
-			CropStartText = lines[3],
-			CropEndText = lines[4],
-		};
-		return block;
+		);
 	}
 
 	private static ClipMotionDataBlock MotionFromFile(
@@ -1009,7 +1003,18 @@ public sealed class NemesisCachePatcher
 	private static ClipMotionDataBlock MotionFromLines(IReadOnlyList<string> lines)
 	{
 		int cursor = 1;
-		string duration = lines[cursor++];
+		string durationLine = lines[cursor++];
+		if (
+			!float.TryParse(
+				durationLine,
+				NumberStyles.Float,
+				CultureInfo.InvariantCulture,
+				out float duration
+			)
+		)
+		{
+			duration = 0;
+		}
 		int translations = int.Parse(lines[cursor++], CultureInfo.InvariantCulture);
 		var translationLines = new List<string>(translations);
 		for (int i = 0; i < translations; i++)

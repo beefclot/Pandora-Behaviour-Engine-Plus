@@ -21,10 +21,6 @@ namespace Pandora.Skyrim.AnimData
 		public float CropStartLocalTime { get; private set; } = 0.0f;
 		public float CropEndLocalTime { get; private set; } = 0.0f;
 
-		public string? PlaybackSpeedText { get; set; }
-		public string? CropStartText { get; set; }
-		public string? CropEndText { get; set; }
-
 		public int NumClipTriggers { get; private set; } = 0;
 
 		public IList<string> TriggerNames { get; private set; } = [];
@@ -154,9 +150,9 @@ namespace Pandora.Skyrim.AnimData
 
 			sb.AppendLine(Name)
 				.AppendLine(ClipID)
-				.AppendLine(PlaybackSpeedText ?? PlaybackSpeed.ToString())
-				.AppendLine(CropStartText ?? CropStartLocalTime.ToString())
-				.AppendLine(CropEndText ?? CropEndLocalTime.ToString())
+				.AppendLine(PlaybackSpeed.ToString())
+				.AppendLine(CropStartLocalTime.ToString())
+				.AppendLine(CropEndLocalTime.ToString())
 				.AppendLine(NumClipTriggers.ToString());
 
 			if (TriggerNames.Count > 0 && TriggerNames.Count == NumClipTriggers)

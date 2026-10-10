@@ -50,8 +50,13 @@ public class NemesisCachePatchTests : IDisposable
 		patcher.Apply(Mod("bbbbbb", 1, second), anim, sets, projects);
 
 		ProjectAnimData male = anim.AnimDataAt(anim.IndexOfProject("DefaultMale"))!;
-		Assert.Contains(male.GetClipIDs(), id => id == "1656");
-		Assert.Contains(male.GetClipIDs(), id => id == "1657");
+		Assert.Contains(male.GetClipIDs(), id => id == "32767");
+		Assert.Contains(male.GetClipIDs(), id => id == "32766");
+		Assert.Equal(
+			"32767",
+			male.BoundMotionDataProject!.Blocks[^2].ClipID
+		);
+		Assert.Equal("32766", male.BoundMotionDataProject.Blocks[^1].ClipID);
 	}
 
 	[Fact]
@@ -85,8 +90,8 @@ public class NemesisCachePatchTests : IDisposable
 		patcher.Apply(Mod("bbbbbb", 1, second), anim, sets, projects);
 
 		ProjectAnimData male = anim.AnimDataAt(anim.IndexOfProject("DefaultMale"))!;
-		Assert.Contains(male.GetClipIDs(), id => id == "1656");
-		Assert.Contains(male.GetClipIDs(), id => id == "1657");
+		Assert.Contains(male.GetClipIDs(), id => id == "32767");
+		Assert.Contains(male.GetClipIDs(), id => id == "32766");
 	}
 
 	[Fact]

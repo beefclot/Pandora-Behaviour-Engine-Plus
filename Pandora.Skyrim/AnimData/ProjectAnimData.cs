@@ -34,14 +34,16 @@ namespace Pandora.Skyrim.AnimData
 
 		public IEnumerable<string> GetClipIDs() => _blocks.ConvertAll(b => b.ClipID);
 
-		public void AddClipData(IClipDataBlock dataBlock, IClipMotionDataBlock motionDataBlock)
+		public void AddClipData(IClipDataBlock dataBlock, IClipMotionDataBlock? motionDataBlock)
 		{
 			var id = _manager.GetNextValidID().ToString();
 			dataBlock.ClipID = id;
-			motionDataBlock.ClipID = id;
-
 			AddClipData(dataBlock);
-
+			if (motionDataBlock == null)
+			{
+				return;
+			}
+			motionDataBlock.ClipID = id;
 			BoundMotionDataProject?.AddClipMotionData(motionDataBlock);
 		}
 

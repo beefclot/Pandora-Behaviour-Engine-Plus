@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
 using Pandora.API.Patch.Skyrim64;
 using Pandora.API.Patch.Skyrim64.AnimData;
 using Pandora.Core.Paths.Abstractions;
@@ -263,6 +265,26 @@ public class AnimDataManager : IAnimDataManager
 				Logger.Debug($"Created directory for OutputAnimData output");
 			}
 
+			string[] sections = new string[_projectNames.Count];
+			Parallel.For(
+				0,
+				sections.Length,
+				i =>
+				{
+					ProjectAnimData animData = AnimDataList[i];
+					var motionData = animData.BoundMotionDataProject;
+					var section = new StringBuilder();
+					section.AppendLine(animData.GetLineCount().ToString());
+					section.AppendLine(animData.ToString());
+					if (motionData != null)
+					{
+						section.AppendLine(motionData.GetLineCount().ToString());
+						section.AppendLine(motionData.ToString());
+					}
+					sections[i] = section.ToString();
+				}
+			);
+
 			using (var writeStream = outputAnimDataSingleFile.Create())
 			using (var writer = new StreamWriter(writeStream))
 			{
@@ -274,19 +296,9 @@ public class AnimDataManager : IAnimDataManager
 					writer.WriteLine($"{projectName}.txt");
 				}
 
-				for (int i = 0; i < _projectNames.Count; i++)
+				foreach (string section in sections)
 				{
-					var animData = AnimDataList[i];
-					var motionData = animData.BoundMotionDataProject;
-
-					writer.WriteLine(animData.GetLineCount());
-					writer.WriteLine(animData.ToString());
-
-					if (motionData == null)
-						continue;
-
-					writer.WriteLine(motionData.GetLineCount());
-					writer.WriteLine(motionData.ToString());
+					writer.Write(section);
 				}
 			}
 

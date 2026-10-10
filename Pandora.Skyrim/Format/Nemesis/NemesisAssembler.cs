@@ -106,9 +106,9 @@ public class NemesisAssembler : IPatchAssembler
 		{
 			if (AssemblePackFilePatch(subFolder, modInfo))
 				continue;
-			if (subFolder.Name.StartsWith("animationsetdata", StringComparison.OrdinalIgnoreCase))
+			if (subFolder.Name.StartsWith("animationsetdata"))
 				continue;
-			if (subFolder.Name.StartsWith("animationdata", StringComparison.OrdinalIgnoreCase))
+			if (subFolder.Name.StartsWith("animationdata"))
 				continue;
 			if (subFolder.Name.StartsWith("plugin")) { }
 		}
@@ -133,9 +133,9 @@ public class NemesisAssembler : IPatchAssembler
 		{
 			if (AssemblePackFilePatch(subFolder, modInfo))
 				continue;
-			if (subFolder.Name.StartsWith("animationsetdata", StringComparison.OrdinalIgnoreCase))
+			if (subFolder.Name.StartsWith("animationsetdata"))
 				continue;
-			if (subFolder.Name.StartsWith("animationdata", StringComparison.OrdinalIgnoreCase))
+			if (subFolder.Name.StartsWith("animationdata"))
 				continue;
 		}
 	}

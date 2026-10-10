@@ -335,6 +335,12 @@ public class NemesisParser
 				continue;
 			}
 			string nodeName = Path.GetFileNameWithoutExtension(editFile.Name);
+			// string? nodeName = element.FirstAttribute?.Value;
+			// if (nodeName == null)
+			// {
+			// 	continue;
+			// }
+
 			nodes = lookup.MapFromElement(element);
 
 			lock (packFile)
@@ -377,6 +383,12 @@ public class NemesisParser
 				continue;
 			}
 			string nodeName = Path.GetFileNameWithoutExtension(editFile.Name);
+			// string? nodeName = element.FirstAttribute?.Value;
+			// if (nodeName == null)
+			// {
+			// 	continue;
+			// }
+			
 			nodes = lookup.MapFromElement(element);
 
 			lock (packFile)
